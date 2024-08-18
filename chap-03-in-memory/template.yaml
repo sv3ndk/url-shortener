@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: lambda-rust-chap3-url-shortener
+
+Resources:
+
+  ShortenerFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: rust-cargolambda
+    Properties:
+      Description: in-memory URL shortener
+      Timeout: 3
+      MemorySize: 128
+      Handler: bootstrap
+      Runtime: provided.al2023      
+      CodeUri: .
+      Architectures:
+        - arm64
+      Events:
+        CreateShortUrl:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: POST
+        VisitShortUrl:
+          Type: HttpApi
+          Properties:
+            Path: /{linkId}
+            Method: GET
+
+Outputs:
+  UrlShortenerEndpoint:
+    Description: "API endpoint"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
